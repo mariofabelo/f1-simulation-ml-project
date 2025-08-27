@@ -13,13 +13,13 @@
 ## 🔧 Tools Used
 
 <p align="center">
-  <a href="https://www.python.org/"><img alt="Python" title="Python" height="60" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"/></a>
+  <a href="https://www.python.org/"><img alt="Python" title="Python" height="80" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"/></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://scikit-learn.org/"><img alt="scikit-learn" title="scikit-learn" height="60" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-original.svg"/></a>
+  <a href="https://scikit-learn.org/"><img alt="scikit-learn" title="scikit-learn" height="80" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-original.svg"/></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://pandas.pydata.org/"><img alt="Pandas" title="Pandas" height="60" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Pandas_logo.svg/1024px-Pandas_logo.svg.png?20200209204934"/></a>
+  <a href="https://pandas.pydata.org/"><img alt="Pandas" title="Pandas" height="80" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Pandas_logo.svg/1024px-Pandas_logo.svg.png?20200209204934"/></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://theoehrly.github.io/Fast-F1/"><img alt="FastF1" title="FastF1" height="60" src="https://repository-images.githubusercontent.com/256720232/4260112d-cedf-4690-a97d-ff7e7f446623"/></a>
+  <a href="https://theoehrly.github.io/Fast-F1/"><img alt="FastF1" title="FastF1" height="80" src="https://repository-images.githubusercontent.com/256720232/4260112d-cedf-4690-a97d-ff7e7f446623"/></a>
 </p>
 
 <p align="center">
@@ -28,7 +28,7 @@
 
 ---
 
-A machine learning project that predicts Formula 1 race results using historical data and free practice session information. This project uses Gradient Boosting and Random Forest models to forecast driver finishing positions for upcoming Grand Prix events.
+A machine learning project that predicts Formula 1 race results using historical data and free practice session information. This project uses Gradient Boosting (R-squared: 0.494) and Random Forest (R-squared: 0.553) models to forecast driver finishing positions for upcoming Grand Prix events.
 
 ## 🏎️ Project Overview
 
@@ -52,7 +52,7 @@ This project leverages the FastF1 library to access Formula 1 telemetry and timi
 ### Machine Learning Models
 
 * **Gradient Boosting Regressor**: Primary model with optimized hyperparameters
-* **Random Forest Regressor**: Alternative model for comparison
+* **Random Forest Regressor**: Alternative model for comparison (Gave 0.55
 * **Cross-Validation**: Uses GroupKFold to prevent data leakage between races
 * **Feature Engineering**: Creates comprehensive feature sets including:
 

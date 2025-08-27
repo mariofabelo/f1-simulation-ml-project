@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Dutch GP Predictions - ML Models Comparison by Mario Fabelo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #0a0a0a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.3),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff0080, #00ff00, #00ffff);
+            border-radius: 20px;
+            z-index: -1;
+            animation: borderGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff0080 0%, #00ffff 50%, #00ff00 100%);
+            color: #000;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.8),
+                0 0 20px rgba(0, 255, 255, 0.6),
+                0 0 30px rgba(0, 255, 255, 0.4);
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.4); }
+            100% { text-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 25px rgba(0, 255, 255, 0.8), 0 0 35px rgba(0, 255, 255, 0.6); }
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .models-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .model-section {
+            padding: 30px;
+            position: relative;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .model-section:first-child {
+            background: rgba(20, 20, 20, 0.8);
+            border-right: 2px solid rgba(0, 255, 255, 0.5);
+        }
+
+        .model-section:last-child {
+            background: rgba(25, 25, 25, 0.8);
+        }
+
+        .model-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 255, 0.05) 50%, transparent 70%);
+            pointer-events: none;
+            animation: scanLine 4s linear infinite;
+        }
+
+        @keyframes scanLine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .model-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #00ffff;
+            position: relative;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.6),
+                0 0 20px rgba(0, 255, 255, 0.4);
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .model-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #00ffff, #ff0080, #00ff00);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            animation: lineGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes lineGlow {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.6); }
+        }
+
+        .predictions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .predictions-table th {
+            background: linear-gradient(135deg, #00ffff 0%, #0080ff 100%);
+            color: #000;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            border-bottom: 2px solid rgba(0, 255, 255, 0.5);
+        }
+
+        .predictions-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            font-size: 0.9rem;
+            color: #e0e0e0;
+        }
+
+        .predictions-table tr:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            transform: translateX(5px);
+            transition: all 0.3s ease;
+        }
+
+        .position {
+            font-weight: 600;
+            color: #00ffff;
+            text-align: center;
+            width: 50px;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .driver {
+            font-weight: 500;
+            color: #ffffff;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .team {
+            color: #00ff00;
+            font-size: 0.85rem;
+            text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+        }
+
+        .prediction {
+            font-weight: 600;
+            text-align: center;
+            color: #ff0080;
+            text-shadow: 0 0 5px rgba(255, 0, 128, 0.5);
+        }
+
+        .podium {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 237, 78, 0.3));
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            animation: podiumGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes podiumGlow {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.3); }
+        }
+
+        .podium .position {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .podium .driver {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+
+        .podium .team {
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
+        .podium .prediction {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: #00ffff;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            border-top: 2px solid rgba(0, 255, 255, 0.5);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .comparison-highlights {
+            background: rgba(15, 15, 15, 0.9);
+            padding: 30px;
+            border-top: 2px solid rgba(0, 255, 255, 0.5);
+            position: relative;
+        }
+
+        .comparison-highlights::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffff, #ff0080, #00ff00, #00ffff);
+            animation: borderFlow 3s linear infinite;
+        }
+
+        @keyframes borderFlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .highlights-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #00ffff;
+            text-align: center;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.6),
+                0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .highlight-card {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-left: 4px solid #00ffff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .highlight-card:hover::before {
+            left: 100%;
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 255, 255, 0.4);
+            border-color: rgba(0, 255, 255, 0.6);
+        }
+
+        .highlight-title {
+            font-weight: 600;
+            color: #00ffff;
+            margin-bottom: 8px;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .highlight-content {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .models-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .model-section:first-child {
+                border-right: none;
+                border-bottom: 2px solid rgba(0, 255, 255, 0.5);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .predictions-table {
+                font-size: 0.8rem;
+            }
+            
+            .predictions-table th,
+            .predictions-table td {
+                padding: 8px 6px;
+            }
+        }
+
+        /* Add Google Fonts import for Orbitron */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');
+        
+        /* SF Pro font for author name */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .author-name {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏎️ F1 DUTCH GP PREDICTIONS</h1>
+            <p>MACHINE LEARNING PROJECT • BY <span class="author-name">MARIO FABELO</span></p>
+        </div>
+
+        <div class="models-container">
+            <div class="model-section">
+                <h2 class="model-title">Gradient Boosting Regression</h2>
+                <table class="predictions-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Driver</th>
+                            <th>Team</th>
+                            <th>Prediction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="podium">
+                            <td class="position">1</td>
+                            <td class="driver">Oscar Piastri</td>
+                            <td class="team">McLaren</td>
+                            <td class="prediction">1.62</td>
+                        </tr>
+                        <tr class="podium">
+                            <td class="position">2</td>
+                            <td class="driver">Lando Norris</td>
+                            <td class="team">McLaren</td>
+                            <td class="prediction">1.81</td>
+                        </tr>
+                        <tr class="podium">
+                            <td class="position">3</td>
+                            <td class="driver">George Russell</td>
+                            <td class="team">Mercedes</td>
+                            <td class="prediction">4.49</td>
+                        </tr>
+                        <tr>
+                            <td class="position">4</td>
+                            <td class="driver">Charles Leclerc</td>
+                            <td class="team">Ferrari</td>
+                            <td class="prediction">4.94</td>
+                        </tr>
+                        <tr>
+                            <td class="position">5</td>
+                            <td class="driver">Max Verstappen</td>
+                            <td class="team">Red Bull Racing</td>
+                            <td class="prediction">6.61</td>
+                        </tr>
+                        <tr>
+                            <td class="position">6</td>
+                            <td class="driver">Gabriel Bortoleto</td>
+                            <td class="team">Kick Sauber</td>
+                            <td class="prediction">7.41</td>
+                        </tr>
+                        <tr>
+                            <td class="position">7</td>
+                            <td class="driver">Fernando Alonso</td>
+                            <td class="team">Aston Martin</td>
+                            <td class="prediction">7.73</td>
+                        </tr>
+                        <tr>
+                            <td class="position">8</td>
+                            <td class="driver">Lance Stroll</td>
+                            <td class="team">Aston Martin</td>
+                            <td class="prediction">8.44</td>
+                        </tr>
+                        <tr>
+                            <td class="position">9</td>
+                            <td class="driver">Lewis Hamilton</td>
+                            <td class="team">Ferrari</td>
+                            <td class="prediction">8.97</td>
+                        </tr>
+                        <tr>
+                            <td class="position">10</td>
+                            <td class="driver">Liam Lawson</td>
+                            <td class="team">Racing Bulls</td>
+                            <td class="prediction">9.32</td>
+                        </tr>
+                        <tr>
+                            <td class="position">11</td>
+                            <td class="driver">Kimi Antonelli</td>
+                            <td class="team">Mercedes</td>
+                            <td class="prediction">11.51</td>
+                        </tr>
+                        <tr>
+                            <td class="position">12</td>
+                            <td class="driver">Isack Hadjar</td>
+                            <td class="team">Racing Bulls</td>
+                            <td class="prediction">12.02</td>
+                        </tr>
+                        <tr>
+                            <td class="position">13</td>
+                            <td class="driver">Nico Hulkenberg</td>
+                            <td class="team">Kick Sauber</td>
+                            <td class="prediction">12.19</td>
+                        </tr>
+                        <tr>
+                            <td class="position">14</td>
+                            <td class="driver">Esteban Ocon</td>
+                            <td class="team">Haas F1 Team</td>
+                            <td class="prediction">15.08</td>
+                        </tr>
+                        <tr>
+                            <td class="position">15</td>
+                            <td class="driver">Alexander Albon</td>
+                            <td class="team">Williams</td>
+                            <td class="prediction">15.17</td>
+                        </tr>
+                        <tr>
+                            <td class="position">16</td>
+                            <td class="driver">Carlos Sainz</td>
+                            <td class="team">Williams</td>
+                            <td class="prediction">15.60</td>
+                        </tr>
+                        <tr>
+                            <td class="position">17</td>
+                            <td class="driver">Pierre Gasly</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">16.08</td>
+                        </tr>
+                        <tr>
+                            <td class="position">18</td>
+                            <td class="driver">Yuki Tsunoda</td>
+                            <td class="team">Red Bull Racing</td>
+                            <td class="prediction">16.56</td>
+                        </tr>
+                        <tr>
+                            <td class="position">19</td>
+                            <td class="driver">Franco Colapinto</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">17.63</td>
+                        </tr>
+                        <tr>
+                            <td class="position">20</td>
+                            <td class="driver">Oliver Bearman</td>
+                            <td class="team">Haas F1 Team</td>
+                            <td class="prediction">17.86</td>
+                        </tr>
+                        <tr>
+                            <td class="position">21</td>
+                            <td class="driver">Jack Doohan</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">18.72</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="model-section">
+                <h2 class="model-title">Random Forest</h2>
+                <table class="predictions-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Driver</th>
+                            <th>Team</th>
+                            <th>Prediction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="podium">
+                            <td class="position">1</td>
+                            <td class="driver">Lando Norris</td>
+                            <td class="team">McLaren</td>
+                            <td class="prediction">1.53</td>
+                        </tr>
+                        <tr class="podium">
+                            <td class="position">2</td>
+                            <td class="driver">Oscar Piastri</td>
+                            <td class="team">McLaren</td>
+                            <td class="prediction">1.93</td>
+                        </tr>
+                        <tr class="podium">
+                            <td class="position">3</td>
+                            <td class="driver">Charles Leclerc</td>
+                            <td class="team">Ferrari</td>
+                            <td class="prediction">5.68</td>
+                        </tr>
+                        <tr>
+                            <td class="position">4</td>
+                            <td class="driver">George Russell</td>
+                            <td class="team">Mercedes</td>
+                            <td class="prediction">5.90</td>
+                        </tr>
+                        <tr>
+                            <td class="position">5</td>
+                            <td class="driver">Max Verstappen</td>
+                            <td class="team">Red Bull Racing</td>
+                            <td class="prediction">6.90</td>
+                        </tr>
+                        <tr>
+                            <td class="position">6</td>
+                            <td class="driver">Lewis Hamilton</td>
+                            <td class="team">Ferrari</td>
+                            <td class="prediction">7.84</td>
+                        </tr>
+                        <tr>
+                            <td class="position">7</td>
+                            <td class="driver">Liam Lawson</td>
+                            <td class="team">Racing Bulls</td>
+                            <td class="prediction">9.62</td>
+                        </tr>
+                        <tr>
+                            <td class="position">8</td>
+                            <td class="driver">Fernando Alonso</td>
+                            <td class="team">Aston Martin</td>
+                            <td class="prediction">10.42</td>
+                        </tr>
+                        <tr>
+                            <td class="position">9</td>
+                            <td class="driver">Lance Stroll</td>
+                            <td class="team">Aston Martin</td>
+                            <td class="prediction">10.80</td>
+                        </tr>
+                        <tr>
+                            <td class="position">10</td>
+                            <td class="driver">Nico Hulkenberg</td>
+                            <td class="team">Kick Sauber</td>
+                            <td class="prediction">11.68</td>
+                        </tr>
+                        <tr>
+                            <td class="position">11</td>
+                            <td class="driver">Gabriel Bortoleto</td>
+                            <td class="team">Kick Sauber</td>
+                            <td class="prediction">11.72</td>
+                        </tr>
+                        <tr>
+                            <td class="position">12</td>
+                            <td class="driver">Kimi Antonelli</td>
+                            <td class="team">Mercedes</td>
+                            <td class="prediction">12.13</td>
+                        </tr>
+                        <tr>
+                            <td class="position">13</td>
+                            <td class="driver">Isack Hadjar</td>
+                            <td class="team">Racing Bulls</td>
+                            <td class="prediction">12.67</td>
+                        </tr>
+                        <tr>
+                            <td class="position">14</td>
+                            <td class="driver">Alexander Albon</td>
+                            <td class="team">Williams</td>
+                            <td class="prediction">14.20</td>
+                        </tr>
+                        <tr>
+                            <td class="position">15</td>
+                            <td class="driver">Esteban Ocon</td>
+                            <td class="team">Haas F1 Team</td>
+                            <td class="prediction">14.25</td>
+                        </tr>
+                        <tr>
+                            <td class="position">16</td>
+                            <td class="driver">Pierre Gasly</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">14.32</td>
+                        </tr>
+                        <tr>
+                            <td class="position">17</td>
+                            <td class="driver">Yuki Tsunoda</td>
+                            <td class="team">Red Bull Racing</td>
+                            <td class="prediction">14.97</td>
+                        </tr>
+                        <tr>
+                            <td class="position">18</td>
+                            <td class="driver">Carlos Sainz</td>
+                            <td class="team">Williams</td>
+                            <td class="prediction">15.73</td>
+                        </tr>
+                        <tr>
+                            <td class="position">19</td>
+                            <td class="driver">Oliver Bearman</td>
+                            <td class="team">Haas F1 Team</td>
+                            <td class="prediction">16.32</td>
+                        </tr>
+                        <tr>
+                            <td class="position">20</td>
+                            <td class="driver">Franco Colapinto</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">17.05</td>
+                        </tr>
+                        <tr>
+                            <td class="position">21</td>
+                            <td class="driver">Jack Doohan</td>
+                            <td class="team">Alpine</td>
+                            <td class="prediction">17.81</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="comparison-highlights">
+            <h3 class="highlights-title">Key Insights</h3>
+            <div class="highlights-grid">
+                <div class="highlight-card">
+                    <div class="highlight-title">🏆 Podium Consensus</div>
+                    <div class="highlight-content">Both models predict McLaren dominance with Piastri and Norris, though they differ on the order. Ferrari's Leclerc appears in both top 3s.</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-title">📊 Model Differences</div>
+                    <div class="highlight-content">Gradient Boosting favors Piastri for the win, while Random Forest predicts Norris as the victor. Verstappen's position varies significantly.</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-title">🎯 Team Performance</div>
+                    <div class="highlight-content">McLaren shows strongest predictions across both models, while Alpine drivers consistently rank in the lower positions.</div>
+                </div>
+                <div class="highlight-card">
+                    <div class="highlight-title">⚡ Prediction Spread</div>
+                    <div class="highlight-content">Gradient Boosting shows tighter predictions (1.62-18.72), while Random Forest has more spread (1.53-17.81), indicating different confidence levels.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>F1 DUTCH GP PREDICTIONS • MACHINE LEARNING PROJECT • BY <span class="author-name">MARIO FABELO</span></p>
+        </div>
+    </div>
+</body>
+</html>

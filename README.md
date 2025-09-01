@@ -40,6 +40,26 @@ This project leverages the FastF1 library to access Formula 1 telemetry and timi
 * Driver and team form throughout the season
 * Grid positions and starting positions
 
+## 📁 Project Structure
+
+The project is organized into a dedicated Dutch GP folder containing all race-specific analysis and ML models:
+
+```
+f1-simulation-ml-project/
+├── Dutch GP/                           # All Dutch GP related files
+│   ├── index.html                      # Main results comparison interface
+│   ├── dutch_gp_results.js             # JavaScript logic for results
+│   ├── load_dutch_gp_results.py        # Python data loading scripts
+│   ├── dutch_gp_results.json           # Race results data
+│   ├── F1_Dutch_GP_prediction_ML_GBR_Random_Forest.ipynb  # ML models
+│   ├── DUTCH_GP_RESULTS_README.md      # Results system guide
+│   ├── DUTCH_GP_ORGANIZATION.md        # Complete organization guide
+│   └── NEXT_RACE_PREPARATION_CHECKLIST.md  # Next race checklist
+├── index.html                          # Main project navigation hub
+├── README.md                           # This project documentation
+└── F1 Car Image Aug 27 2025 (1).png   # Project logo
+```
+
 ## 🚀 Features
 
 ### Data Processing
@@ -82,6 +102,13 @@ pip install tqdm
 pip install matplotlib
 pip install numpy
 ```
+
+## 🚀 Quick Start
+
+1. **Open the main project hub**: `index.html` - This provides navigation to all project components
+2. **Access Dutch GP Analysis**: Navigate to the `Dutch GP/` folder for complete race analysis
+3. **Run ML Models**: Use the Jupyter notebook in the Dutch GP folder for predictions
+4. **View Results**: Check the results comparison interface for Dutch GP analysis
 
 ## 🛠️ Installation & Setup
 

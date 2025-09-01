@@ -214,40 +214,40 @@
         </div>
 
         <div class="nav-grid">
-            <div class="nav-card" onclick="window.location.href='Dutch GP/index.html'">
+            <div class="nav-card">
                 <h3>🏁 Dutch GP Analysis</h3>
                 <p>Complete analysis of the Dutch Grand Prix including ML predictions, actual results comparison, and detailed insights.</p>
-                <button class="btn">Open Dutch GP</button>
+                <button class="btn" onclick="window.location.href='Dutch GP/index.html'">Open Dutch GP</button>
             </div>
 
-            <div class="nav-card" onclick="window.location.href='Dutch GP/F1_Dutch_GP_prediction_ML_GBR_Random_Forest.ipynb'">
+            <div class="nav-card">
                 <h3>🤖 ML Models</h3>
                 <p>Jupyter notebook containing the machine learning models, training data, and prediction algorithms for F1 race outcomes.</p>
-                <button class="btn">Open ML Notebook</button>
+                <button class="btn" onclick="window.location.href='Dutch GP/F1_Dutch_GP_prediction_ML_GBR_Random_Forest.ipynb'">Open ML Notebook</button>
             </div>
 
-            <div class="nav-card" onclick="window.location.href='Dutch GP/DUTCH_GP_ORGANIZATION.md'">
+            <div class="nav-card">
                 <h3>📋 Project Organization</h3>
                 <p>Complete organization guide for the Dutch GP project, including file structure, current status, and next steps.</p>
-                <button class="btn">View Organization</button>
+                <button class="btn" onclick="window.location.href='Dutch GP/DUTCH_GP_ORGANIZATION.md'">View Organization</button>
             </div>
 
-            <div class="nav-card" onclick="window.location.href='Dutch GP/NEXT_RACE_PREPARATION_CHECKLIST.md'">
+            <div class="nav-card">
                 <h3>✅ Next Race Checklist</h3>
                 <p>Comprehensive checklist for preparing for the next Grand Prix, organized by timeline and priority.</p>
-                <button class="btn">View Checklist</button>
+                <button class="btn" onclick="window.location.href='Dutch GP/NEXT_RACE_PREPARATION_CHECKLIST.md'">View Checklist</button>
             </div>
 
-            <div class="nav-card" onclick="window.location.href='Dutch GP/load_dutch_gp_results.py'">
+            <div class="nav-card">
                 <h3>🐍 Data Loading Scripts</h3>
                 <p>Python scripts for loading F1 race results using the FastF1 library and processing data for ML models.</p>
-                <button class="btn">View Scripts</button>
+                <button class="btn" onclick="window.location.href='Dutch GP/load_dutch_gp_results.py'">View Scripts</button>
             </div>
 
-            <div class="nav-card" onclick="window.location.href='README.md'">
+            <div class="nav-card">
                 <h3>📚 Project Documentation</h3>
                 <p>Main project README with installation instructions, features overview, and technical details.</p>
-                <button class="btn">View README</button>
+                <button class="btn" onclick="window.location.href='README.md'">View README</button>
             </div>
         </div>
 
@@ -272,7 +272,6 @@
         // Add click tracking for analytics (if needed)
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
-                e.stopPropagation();
                 // Add analytics tracking here if needed
             });
         });

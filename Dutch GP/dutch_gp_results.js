@@ -444,6 +444,118 @@ class DutchGPResults {
         this.displayComparison();
         this.showRealResultsIndicator();
     }
+
+    // Calculate and display accuracy metrics for visualization
+    calculateAndDisplayAccuracyMetrics() {
+        const gbAccuracy = this.calculateModelAccuracy(this.predictions.gradientBoosting);
+        const rfAccuracy = this.calculateModelAccuracy(this.predictions.randomForest);
+
+        // Update Gradient Boosting metrics
+        const gbAccuracyElement = document.getElementById('gb-accuracy');
+        const gbDetailsElement = document.getElementById('gb-details');
+        if (gbAccuracyElement) {
+            gbAccuracyElement.textContent = `${gbAccuracy.top10Accuracy}%`;
+        }
+        if (gbDetailsElement) {
+            gbDetailsElement.innerHTML = `
+                <span>Podium: ${gbAccuracy.podiumCorrect}/3</span>
+                <span>Top 5: ${gbAccuracy.top5Correct}/5</span>
+                <span>Top 10: ${gbAccuracy.top10Correct}/10</span>
+            `;
+        }
+
+        // Update Random Forest metrics
+        const rfAccuracyElement = document.getElementById('rf-accuracy');
+        const rfDetailsElement = document.getElementById('rf-details');
+        if (rfAccuracyElement) {
+            rfAccuracyElement.textContent = `${rfAccuracy.top10Accuracy}%`;
+        }
+        if (rfDetailsElement) {
+            rfDetailsElement.innerHTML = `
+                <span>Podium: ${rfAccuracy.podiumCorrect}/3</span>
+                <span>Top 5: ${rfAccuracy.top5Correct}/5</span>
+                <span>Top 10: ${rfAccuracy.top10Correct}/10</span>
+            `;
+        }
+
+        // Calculate and display accuracy breakdown
+        this.displayAccuracyBreakdown();
+    }
+
+    // Display accuracy breakdown
+    displayAccuracyBreakdown() {
+        const gbBreakdown = this.calculateAccuracyBreakdown(this.predictions.gradientBoosting);
+        const rfBreakdown = this.calculateAccuracyBreakdown(this.predictions.randomForest);
+
+        // Update breakdown elements
+        const perfectElement = document.getElementById('perfect-predictions');
+        const closeElement = document.getElementById('close-predictions');
+        const fairElement = document.getElementById('fair-predictions');
+        const poorElement = document.getElementById('poor-predictions');
+
+        if (perfectElement) {
+            perfectElement.innerHTML = `
+                <div style="color: #00ff00;">GB: ${gbBreakdown.perfect}</div>
+                <div style="color: #00ff00;">RF: ${rfBreakdown.perfect}</div>
+            `;
+        }
+        if (closeElement) {
+            closeElement.innerHTML = `
+                <div style="color: #00ffff;">GB: ${gbBreakdown.close}</div>
+                <div style="color: #00ffff;">RF: ${rfBreakdown.close}</div>
+            `;
+        }
+        if (fairElement) {
+            fairElement.innerHTML = `
+                <div style="color: #ffa500;">GB: ${gbBreakdown.fair}</div>
+                <div style="color: #ffa500;">RF: ${rfBreakdown.fair}</div>
+            `;
+        }
+        if (poorElement) {
+            poorElement.innerHTML = `
+                <div style="color: #ff4444;">GB: ${gbBreakdown.poor}</div>
+                <div style="color: #ff4444;">RF: ${rfBreakdown.poor}</div>
+            `;
+        }
+    }
+
+    // Calculate accuracy breakdown for a model
+    calculateAccuracyBreakdown(predictions) {
+        const breakdown = { perfect: 0, close: 0, fair: 0, poor: 0 };
+
+        predictions.forEach(prediction => {
+            const actualResult = this.officialResults.find(result => result.driver === prediction.driver);
+            if (actualResult) {
+                const diff = Math.abs(actualResult.position - prediction.position);
+                if (diff === 0) {
+                    breakdown.perfect++;
+                } else if (diff <= 2) {
+                    breakdown.close++;
+                } else if (diff <= 5) {
+                    breakdown.fair++;
+                } else {
+                    breakdown.poor++;
+                }
+            }
+        });
+
+        return breakdown;
+    }
+}
+
+// Global function to show accuracy visualization
+function showAccuracyVisualization() {
+    const accuracySection = document.getElementById('accuracy-visualization');
+    if (accuracySection) {
+        accuracySection.style.display = 'block';
+        
+        // Calculate and display accuracy metrics
+        const dutchGP = new DutchGPResults();
+        dutchGP.calculateAndDisplayAccuracyMetrics();
+        
+        // Scroll to the accuracy section
+        accuracySection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // Initialize when DOM is loaded
